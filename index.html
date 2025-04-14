@@ -1,62 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Confirmar Pago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f9f9f9;
       text-align: center;
-      padding-top: 100px;
+    }
+    h2 {
+      margin-bottom: 20px;
     }
     button {
-      font-size: 1.2em;
-      padding: 10px 20px;
+      padding: 12px 24px;
+      font-size: 18px;
       background-color: #28a745;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    #mensaje {
-      margin-top: 20px;
-      font-size: 1.2em;
+    button:active {
+      background-color: #218838;
     }
   </style>
 </head>
 <body>
   <h2>¿Deseas confirmar el pago?</h2>
-  <button onclick="confirmarPago()">✅ Aceptar</button>
-  <div id="mensaje"></div>
+  <button id="aceptar">✅ Aceptar</button>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const chat_id = params.get("chat_id");
-    const mensaje = params.get("text");
+    document.getElementById('aceptar').addEventListener('click', () => {
+      // Leer parámetros originales
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const chat_id = params.get('chat_id');
+      const texto = params.get('text');
 
-    function confirmarPago() {
-      if (token && chat_id && mensaje) {
-        const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
-        fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            if (data.ok) {
-              document.getElementById("mensaje").innerText = "✅ Confirmación enviada.";
-              setTimeout(() => {
-                window.close();
-              }, 2000);
-            } else {
-              document.getElementById("mensaje").innerText = "❌ Error al confirmar el pago.";
-            }
-          })
-          .catch(() => {
-            document.getElementById("mensaje").innerText = "❌ No se pudo conectar.";
-          });
-      } else {
-        document.getElementById("mensaje").innerText = "❌ Faltan parámetros.";
-      }
-    }
+      // Construir la URL real de confirmación
+      const urlReal = `https://telemanagment.github.io/confirmacion-pago/confirmacion.html` +
+                      `?token=${encodeURIComponent(token)}` +
+                      `&chat_id=${encodeURIComponent(chat_id)}` +
+                      `&text=${encodeURIComponent(texto)}`;
+
+      // Redirigir
+      window.location.href = urlReal;
+    });
   </script>
 </body>
 </html>
