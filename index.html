@@ -1,89 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmar Pago</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #f2f2f2;
-    }
-    button {
-      font-size: 18px;
-      padding: 15px 25px;
-      background-color: #28a745;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-    #mensaje {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #28a745;
-    }
-  </style>
-</head>
-<body>
-  <h1>Confirmar Pago</h1>
-  <button id="confirmarBtn">✅ Confirmar Pago</button>
-  <div id="mensaje"></div>
-
+  <meta charset="UTF-8" />
+  <title>Confirmación de Pago</title>
   <script>
-    document.getElementById("confirmarBtn").addEventListener("click", async () => {
-      const urlParams = new URLSearchParams(window.location.search);
+    function obtenerParametros() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        token: params.get("token"),
+        chat_id: params.get("chat_id"),
+        cedula: params.get("cedula"),
+        nombre: params.get("nombre"),
+        direccion: params.get("direccion"),
+        total: params.get("total"),
+        idFactura: params.get("idFactura"),
+        meses: params.get("meses")
+      };
+    }
 
-      const token = urlParams.get("token");
-      const chat_id = urlParams.get("chat_id");
-      const cedula = urlParams.get("cedula");
-      const nombre = urlParams.get("nombre");
-      const direccion = urlParams.get("direccion");
-      const total = urlParams.get("total");
-      const idFactura = urlParams.get("idFactura");
-      const meses = urlParams.get("meses");
+    async function confirmarPago() {
+      const datos = obtenerParametros();
 
-      if (!token || !chat_id) {
-        document.getElementById("mensaje").innerText = "Faltan datos para confirmar.";
+      // Validación de parámetros obligatorios
+      if (!datos.token || !datos.chat_id || !datos.cedula || !datos.nombre || !datos.direccion || !datos.total || !datos.idFactura || !datos.meses) {
+        document.body.innerHTML = "<h2 style='color:red;'>❌ Faltan parámetros en la URL.</h2>";
         return;
       }
 
-      const texto = `✅ EL TECNICO CONFIRMÓ el pago de la factura ${idFactura} CON CÉDULA ${cedula} A NOMBRE DE ${nombre} DIRECCIÓN ${direccion} POR $${total} MESES: ${meses}. POR FAVOR ENTREGAR EL $ EN LA OFICINA`;
+      const mensaje = `✅ EL TECNICO CONFIRMÓ el pago de la factura ${datos.idFactura} CON CÉDULA ${datos.cedula} A NOMBRE DE ${datos.nombre} DIRECCIÓN ${datos.direccion} POR $${datos.total} MESES: ${datos.meses}. POR FAVOR ENTREGAR EL $ EN LA OFICINA`;
 
-      const apiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-
-      const payload = {
-        chat_id: chat_id,
-        text: texto
-      };
+      const url = `https://api.telegram.org/bot${datos.token}/sendMessage?chat_id=${datos.chat_id}&text=${encodeURIComponent(mensaje)}`;
 
       try {
-        const res = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
+        const boton = document.getElementById("btnConfirmar");
+        boton.disabled = true;
+        boton.innerText = "✅ Confirmado";
 
-        if (res.ok) {
-          document.getElementById("mensaje").innerText = "✅ Confirmación enviada.";
-          document.getElementById("confirmarBtn").disabled = true;
-          setTimeout(() => {
-            window.close();
-          }, 3000);
-        } else {
-          document.getElementById("mensaje").innerText = "❌ Error al enviar la confirmación.";
-        }
-      } catch (error) {
-        document.getElementById("mensaje").innerText = "❌ Error de red.";
+        await fetch(url);
+        setTimeout(() => window.close(), 1000); // Cierra la página tras 1 segundo
+      } catch (e) {
+        alert("Ocurrió un error al enviar la confirmación.");
+        console.error(e);
       }
-    });
+    }
+
+    window.onload = confirmarPago;
   </script>
+</head>
+<body>
+  <h2>✅ Confirmando el pago...</h2>
+  <button id="btnConfirmar" onclick="confirmarPago()">Reintentar</button>
 </body>
 </html>
