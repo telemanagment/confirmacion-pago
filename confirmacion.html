@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Pago</title>
+    <script>
+        function confirmarPago() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chat_id = urlParams.get("chat_id");
+            const token = urlParams.get("token");
+            const texto = urlParams.get("texto");
+
+            if (!chat_id || !token || !texto) {
+                alert("Faltan parámetros.");
+                return;
+            }
+
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(texto)}`)
+                .then(response => {
+                    if (response.ok) {
+                        alert("✅ Confirmación enviada");
+                        setTimeout(() => window.close(), 2000);
+                    } else {
+                        alert("Error al enviar la confirmación.");
+                    }
+                });
+        }
+    </script>
+</head>
+<body onload="confirmarPago()">
+    <h2>Confirmando pago...</h2>
+</body>
+</html>
