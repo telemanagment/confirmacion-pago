@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmación de Pago</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    .mensaje {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .boton {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .boton:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="mensaje">¿Estás seguro de confirmar el pago?</div>
+  <button class="boton" onclick="confirmarPago()" id="botonConfirmar">✅ Confirmar Pago</button>
+
+  <script>
+    function confirmarPago() {
+      // URL generada por tu app de escritorio (ya funciona bien según dijiste)
+      const urlTelegram = "https://api.telegram.org/botTU_TOKEN/sendMessage?chat_id=TU_CHAT_ID&text=CONFIRMACION_DEL_PAGO";
+
+      // Enviar confirmación
+      fetch(urlTelegram)
+        .then(() => {
+          document.querySelector(".mensaje").innerText = "✅ Pago confirmado. Puedes cerrar esta página.";
+          document.getElementById("botonConfirmar").disabled = true;
+
+          // Cierra la pestaña automáticamente después de 2 segundos
+          setTimeout(() => {
+            window.close();
+          }, 2000);
+        })
+        .catch((error) => {
+          alert("Hubo un error al enviar la confirmación.");
+          console.error(error);
+        });
+    }
+  </script>
+</body>
+</html>
