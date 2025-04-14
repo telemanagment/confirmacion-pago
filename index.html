@@ -1,58 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmación de Pago</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    .mensaje {
-      font-size: 20px;
-      margin-bottom: 20px;
-    }
-    .boton {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .boton:disabled {
-      background-color: gray;
-      cursor: not-allowed;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Confirmación de Pago</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+        }
+        #estado {
+            margin: 20px;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
-  <div class="mensaje">¿Estás seguro de confirmar el pago?</div>
-  <button class="boton" onclick="confirmarPago()" id="botonConfirmar">✅ Confirmar Pago</button>
+    <h2>Confirmación de Pago</h2>
+    <p id="estado">Enviando confirmación...</p>
+    <button id="btnCerrar" disabled>Cerrar</button>
 
-  <script>
-    function confirmarPago() {
-      // URL generada por tu app de escritorio (ya funciona bien según dijiste)
-      const urlTelegram = "https://api.telegram.org/botTU_TOKEN/sendMessage?chat_id=TU_CHAT_ID&text=CONFIRMACION_DEL_PAGO";
+    <script>
+        async function confirmarPago() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get("token");
+            const chatId = params.get("chat_id");
+            const texto = params.get("texto");
 
-      // Enviar confirmación
-      fetch(urlTelegram)
-        .then(() => {
-          document.querySelector(".mensaje").innerText = "✅ Pago confirmado. Puedes cerrar esta página.";
-          document.getElementById("botonConfirmar").disabled = true;
+            const estado = document.getElementById("estado");
+            const btnCerrar = document.getElementById("btnCerrar");
 
-          // Cierra la pestaña automáticamente después de 2 segundos
-          setTimeout(() => {
-            window.close();
-          }, 2000);
-        })
-        .catch((error) => {
-          alert("Hubo un error al enviar la confirmación.");
-          console.error(error);
-        });
-    }
-  </script>
+            if (!token || !chatId || !texto) {
+                estado.textContent = "❌ Parámetros inválidos.";
+                return;
+            }
+
+            try {
+                const url = `https://api.telegram.org/bot${token}/sendMessage`;
+                const body = {
+                    chat_id: chatId,
+                    text: texto
+                };
+
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    estado.textContent = "✅ Confirmación enviada correctamente.";
+                    btnCerrar.disabled = false;
+
+                    // Cerrar automáticamente luego de 3 segundos
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+                } else {
+                    estado.textContent = "❌ Error al enviar confirmación.";
+                }
+            } catch (error) {
+                estado.textContent = "❌ Error de red o Telegram.";
+            }
+        }
+
+        document.getElementById("btnCerrar").onclick = () => window.close();
+
+        confirmarPago();
+    </script>
 </body>
 </html>
