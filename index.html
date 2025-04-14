@@ -1,86 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Confirmación de Pago</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 30px;
-            text-align: center;
-        }
-        #estado {
-            margin: 20px;
-            font-size: 18px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 5px;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Confirmar Pago</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+    #mensaje {
+      font-size: 1.2em;
+      color: green;
+      margin-top: 20px;
+    }
+    #boton {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h2>Confirmación de Pago</h2>
-    <p id="estado">Enviando confirmación...</p>
-    <button id="btnCerrar" disabled>Cerrar</button>
+  <h2>Confirmando el pago...</h2>
+  <div id="mensaje">Enviando confirmación...</div>
 
-    <script>
-        async function confirmarPago() {
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get("token");
-            const chatId = params.get("chat_id");
-            const texto = params.get("texto");
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const chat_id = params.get("chat_id");
+    const mensaje = params.get("text");
 
-            const estado = document.getElementById("estado");
-            const btnCerrar = document.getElementById("btnCerrar");
+    if (token && chat_id && mensaje) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
 
-            if (!token || !chatId || !texto) {
-                estado.textContent = "❌ Parámetros inválidos.";
-                return;
-            }
-
-            try {
-                const url = `https://api.telegram.org/bot${token}/sendMessage`;
-                const body = {
-                    chat_id: chatId,
-                    text: texto
-                };
-
-                const res = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body)
-                });
-
-                if (res.ok) {
-                    estado.textContent = "✅ Confirmación enviada correctamente.";
-                    btnCerrar.disabled = false;
-
-                    // Cerrar automáticamente luego de 3 segundos
-                    setTimeout(() => {
-                        window.close();
-                    }, 3000);
-                } else {
-                    estado.textContent = "❌ Error al enviar confirmación.";
-                }
-            } catch (error) {
-                estado.textContent = "❌ Error de red o Telegram.";
-            }
-        }
-
-        document.getElementById("btnCerrar").onclick = () => window.close();
-
-        confirmarPago();
-    </script>
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            document.getElementById("mensaje").innerText = "✅ Pago confirmado correctamente.";
+            setTimeout(() => {
+              window.close(); // Cierra la pestaña después de 2 segundos
+            }, 2000);
+          } else {
+            document.getElementById("mensaje").innerText = "❌ Error al confirmar el pago.";
+          }
+        })
+        .catch(error => {
+          document.getElementById("mensaje").innerText = "❌ No se pudo conectar.";
+        });
+    } else {
+      document.getElementById("mensaje").innerText = "❌ Faltan datos para confirmar el pago.";
+    }
+  </script>
 </body>
 </html>
