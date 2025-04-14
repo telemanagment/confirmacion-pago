@@ -5,51 +5,85 @@
   <title>Confirmar Pago</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 100px;
+      padding: 40px;
+      background-color: #f2f2f2;
+    }
+    button {
+      font-size: 18px;
+      padding: 15px 25px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
     }
     #mensaje {
-      font-size: 1.2em;
-      color: green;
       margin-top: 20px;
-    }
-    #boton {
-      display: none;
+      font-weight: bold;
+      color: #28a745;
     }
   </style>
 </head>
 <body>
-  <h2>Confirmando el pago...</h2>
-  <div id="mensaje">Enviando confirmación...</div>
+  <h1>Confirmar Pago</h1>
+  <button id="confirmarBtn">✅ Confirmar Pago</button>
+  <div id="mensaje"></div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const chat_id = params.get("chat_id");
-    const mensaje = params.get("text");
+    document.getElementById("confirmarBtn").addEventListener("click", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
 
-    if (token && chat_id && mensaje) {
-      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
+      const token = urlParams.get("token");
+      const chat_id = urlParams.get("chat_id");
+      const cedula = urlParams.get("cedula");
+      const nombre = urlParams.get("nombre");
+      const direccion = urlParams.get("direccion");
+      const total = urlParams.get("total");
+      const idFactura = urlParams.get("idFactura");
+      const meses = urlParams.get("meses");
 
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          if (data.ok) {
-            document.getElementById("mensaje").innerText = "✅ Pago confirmado correctamente.";
-            setTimeout(() => {
-              window.close(); // Cierra la pestaña después de 2 segundos
-            }, 2000);
-          } else {
-            document.getElementById("mensaje").innerText = "❌ Error al confirmar el pago.";
-          }
-        })
-        .catch(error => {
-          document.getElementById("mensaje").innerText = "❌ No se pudo conectar.";
+      if (!token || !chat_id) {
+        document.getElementById("mensaje").innerText = "Faltan datos para confirmar.";
+        return;
+      }
+
+      const texto = `✅ EL TECNICO CONFIRMÓ el pago de la factura ${idFactura} CON CÉDULA ${cedula} A NOMBRE DE ${nombre} DIRECCIÓN ${direccion} POR $${total} MESES: ${meses}. POR FAVOR ENTREGAR EL $ EN LA OFICINA`;
+
+      const apiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
+
+      const payload = {
+        chat_id: chat_id,
+        text: texto
+      };
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
         });
-    } else {
-      document.getElementById("mensaje").innerText = "❌ Faltan datos para confirmar el pago.";
-    }
+
+        if (res.ok) {
+          document.getElementById("mensaje").innerText = "✅ Confirmación enviada.";
+          document.getElementById("confirmarBtn").disabled = true;
+          setTimeout(() => {
+            window.close();
+          }, 3000);
+        } else {
+          document.getElementById("mensaje").innerText = "❌ Error al enviar la confirmación.";
+        }
+      } catch (error) {
+        document.getElementById("mensaje").innerText = "❌ Error de red.";
+      }
+    });
   </script>
 </body>
 </html>
