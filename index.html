@@ -1,33 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Confirmación de Pago</title>
-    <script>
-        function confirmarPago() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const chat_id = urlParams.get("chat_id");
-            const token = urlParams.get("token");
-            const texto = urlParams.get("texto");
-
-            if (!chat_id || !token || !texto) {
-                alert("Faltan parámetros.");
-                return;
-            }
-
-            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(texto)}`)
-                .then(response => {
-                    if (response.ok) {
-                        alert("✅ Confirmación enviada");
-                        setTimeout(() => window.close(), 2000);
-                    } else {
-                        alert("Error al enviar la confirmación.");
-                    }
-                });
-        }
-    </script>
+  <meta charset="UTF-8">
+  <title>Confirmar Pago</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+    #mensaje {
+      font-size: 1.2em;
+      color: green;
+      margin-top: 20px;
+    }
+    #boton {
+      display: none;
+    }
+  </style>
 </head>
-<body onload="confirmarPago()">
-    <h2>Confirmando pago...</h2>
+<body>
+  <h2>Confirmando el pago...</h2>
+  <div id="mensaje">Enviando confirmación...</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const chat_id = params.get("chat_id");
+    const mensaje = params.get("text");
+
+    if (token && chat_id && mensaje) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            document.getElementById("mensaje").innerText = "✅ Pago confirmado correctamente.";
+            setTimeout(() => {
+              window.close(); // Cierra la pestaña después de 2 segundos
+            }, 2000);
+          } else {
+            document.getElementById("mensaje").innerText = "❌ Error al confirmar el pago.";
+          }
+        })
+        .catch(error => {
+          document.getElementById("mensaje").innerText = "❌ No se pudo conectar.";
+        });
+    } else {
+      document.getElementById("mensaje").innerText = "❌ Faltan datos para confirmar el pago.";
+    }
+  </script>
 </body>
 </html>
