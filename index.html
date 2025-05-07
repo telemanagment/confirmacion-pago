@@ -3,53 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Confirmando Pago</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-      background-color: #f8f8f8;
-      color: #333;
-    }
-    .status {
-      font-size: 1.2em;
-      margin-top: 20px;
-    }
-  </style>
   <script>
-    async function confirmarPago() {
+    function redirigir() {
       const urlParams = new URLSearchParams(window.location.search);
       const idFactura = urlParams.get("idFactura");
       const cedula = urlParams.get("cedula");
       const nombre = urlParams.get("nombre");
 
-      const estado = document.getElementById("estado");
-
       if (idFactura && cedula && nombre) {
-        estado.innerText = "🔄 Procesando confirmación de pago...";
-
-        try {
-          const response = await fetch(`http://localhost:8080/confirmar?idFactura=${idFactura}&cedula=${cedula}&nombre=${encodeURIComponent(nombre)}`);
-
-          if (response.ok) {
-            estado.innerText = "✅ Pago confirmado correctamente.";
-          } else {
-            estado.innerText = "❌ Error al confirmar el pago.";
-          }
-        } catch (error) {
-          estado.innerText = "⚠️ No se pudo conectar con la aplicación local. ¿Está abierta?";
-        }
-
-        setTimeout(() => window.close(), 2000);
+        const url = `http://localhost:8080/confirmar?idFactura=${idFactura}&cedula=${cedula}&nombre=${encodeURIComponent(nombre)}`;
+        window.location.href = url;
       } else {
-        estado.innerText = "❌ Faltan parámetros en la URL.";
+        document.body.innerHTML = "<h3>❌ Faltan parámetros para confirmar el pago.</h3>";
       }
     }
 
-    window.onload = confirmarPago;
+    window.onload = redirigir;
   </script>
 </head>
 <body>
+  <h3>Redirigiendo a la aplicación local para confirmar el pago...</h3>
+</body>
+</html>
+
   <h2>Confirmación de Pago</h2>
   <div class="status" id="estado">🔍 Verificando datos...</div>
 </body>
