@@ -3,6 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Confirmando Pago</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    .status {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+  </style>
   <script>
     async function confirmarPago() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -10,32 +23,34 @@
       const cedula = urlParams.get("cedula");
       const nombre = urlParams.get("nombre");
 
-      // Verifica si los parámetros están presentes
-      if (idFactura && cedula && nombre) {
-        // Llama a tu aplicación local para marcar como pagado y enviar notificación
-        // Aquí debes reemplazar por tu propio servidor o listener en VB.NET
-        await fetch("http://localhost:8080/confirmar?idFactura=" + idFactura + "&cedula=" + cedula + "&nombre=" + nombre)
-          .then(response => {
-            if (response.ok) {
-              console.log("Confirmado");
-              alert("✅ Pago confirmado y factura procesada.");
-            } else {
-              console.error("Error al procesar la factura.");
-            }
-          })
-          .catch(error => console.error("Error:", error));
-      } else {
-        alert("❌ Faltan parámetros. No se pudo confirmar el pago.");
-      }
+      const estado = document.getElementById("estado");
 
-      // Cierra la ventana automáticamente después de 2 segundos
-      setTimeout(() => window.close(), 2000);
+      if (idFactura && cedula && nombre) {
+        estado.innerText = "🔄 Procesando confirmación de pago...";
+
+        try {
+          const response = await fetch(`http://localhost:8080/confirmar?idFactura=${idFactura}&cedula=${cedula}&nombre=${encodeURIComponent(nombre)}`);
+
+          if (response.ok) {
+            estado.innerText = "✅ Pago confirmado correctamente.";
+          } else {
+            estado.innerText = "❌ Error al confirmar el pago.";
+          }
+        } catch (error) {
+          estado.innerText = "⚠️ No se pudo conectar con la aplicación local. ¿Está abierta?";
+        }
+
+        setTimeout(() => window.close(), 2000);
+      } else {
+        estado.innerText = "❌ Faltan parámetros en la URL.";
+      }
     }
 
     window.onload = confirmarPago;
   </script>
 </head>
 <body>
-  <h3>Confirmando pago...</h3>
+  <h2>Confirmación de Pago</h2>
+  <div class="status" id="estado">🔍 Verificando datos...</div>
 </body>
 </html>
