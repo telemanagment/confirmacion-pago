@@ -14,6 +14,9 @@
       color: green;
       margin-top: 20px;
     }
+    #boton {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -25,43 +28,18 @@
     const token = params.get("token");
     const chat_id = params.get("chat_id");
     const mensaje = params.get("text");
-    const idFactura = params.get("idFactura");  // Suponiendo que también pasas el id de la factura
 
-    if (token && chat_id && mensaje && idFactura) {
-      // Enviar mensaje a Telegram
-      const urlTelegram = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
+    if (token && chat_id && mensaje) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(mensaje)}`;
 
-      fetch(urlTelegram)
+      fetch(url)
         .then(response => response.json())
         .then(data => {
           if (data.ok) {
             document.getElementById("mensaje").innerText = "✅ Pago confirmado correctamente.";
-
-            // Ahora llamamos al servidor para procesar la factura
-            const urlServidor = 'http://localhost:8080/confirmar'; // Reemplaza con la URL de tu servidor
-            const dataToSend = {
-              idFactura: idFactura,  // Asegúrate de enviar el ID de la factura
-              token: token,
-              chatId: chat_id
-            };
-
-            fetch(urlServidor, {
-              method: 'POST', 
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(dataToSend)
-            })
-            .then(response => response.json())
-            .then(data => {
-              // Si todo es correcto, cerramos la ventana
-              setTimeout(() => {
-                window.close(); // Cierra la pestaña después de 2 segundos
-              }, 2000);
-            })
-            .catch(error => {
-              document.getElementById("mensaje").innerText = "❌ Error al procesar la factura.";
-            });
+            setTimeout(() => {
+              window.close(); // Cierra la pestaña después de 2 segundos
+            }, 2000);
           } else {
             document.getElementById("mensaje").innerText = "❌ Error al confirmar el pago.";
           }
