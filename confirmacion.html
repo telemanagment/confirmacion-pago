@@ -1,56 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmando Pago</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-      background-color: #f8f8f8;
-      color: #333;
-    }
-    .status {
-      font-size: 1.2em;
-      margin-top: 20px;
-    }
-  </style>
-  <script>
-    async function confirmarPago() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const idFactura = urlParams.get("idFactura");
-      const cedula = urlParams.get("cedula");
-      const nombre = urlParams.get("nombre");
+    <meta charset="UTF-8">
+    <title>Confirmación de Pago</title>
+    <script>
+        function confirmarPago() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chat_id = urlParams.get("chat_id");
+            const token = urlParams.get("token");
+            const texto = urlParams.get("texto");
 
-      const estado = document.getElementById("estado");
+            if (!chat_id || !token || !texto) {
+                alert("Faltan parámetros.");
+                return;
+            }
 
-      if (idFactura && cedula && nombre) {
-        estado.innerText = "🔄 Procesando confirmación de pago...";
-
-        try {
-          const response = await fetch(`http://localhost:8080/confirmar?idFactura=${idFactura}&cedula=${cedula}&nombre=${encodeURIComponent(nombre)}`);
-
-          if (response.ok) {
-            estado.innerText = "✅ Pago confirmado correctamente.";
-          } else {
-            estado.innerText = "❌ Error al confirmar el pago.";
-          }
-        } catch (error) {
-          estado.innerText = "⚠️ No se pudo conectar con la aplicación local. ¿Está abierta?";
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(texto)}`)
+                .then(response => {
+                    if (response.ok) {
+                        alert("✅ Confirmación enviada");
+                        setTimeout(() => window.close(), 2000);
+                    } else {
+                        alert("Error al enviar la confirmación.");
+                    }
+                });
         }
-
-        setTimeout(() => window.close(), 2000);
-      } else {
-        estado.innerText = "❌ Faltan parámetros en la URL.";
-      }
-    }
-
-    window.onload = confirmarPago;
-  </script>
+    </script>
 </head>
-<body>
-  <h2>Confirmación de Pago</h2>
-  <div class="status" id="estado">🔍 Verificando datos...</div>
+<body onload="confirmarPago()">
+    <h2>Confirmando pago...</h2>
 </body>
 </html>
