@@ -1,32 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmando Pago</title>
-  <script>
-    function redirigir() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const idFactura = urlParams.get("idFactura");
-      const cedula = urlParams.get("cedula");
-      const nombre = urlParams.get("nombre");
+    <meta charset="UTF-8">
+    <title>Confirmación de Pago</title>
+    <script>
+        function confirmarPago() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chat_id = urlParams.get("chat_id");
+            const token = urlParams.get("token");
+            const texto = urlParams.get("texto");
 
-      if (idFactura && cedula && nombre) {
-        const url = `http://localhost:8080/confirmar?idFactura=${idFactura}&cedula=${cedula}&nombre=${encodeURIComponent(nombre)}`;
-        window.location.href = url;
-      } else {
-        document.body.innerHTML = "<h3>❌ Faltan parámetros para confirmar el pago.</h3>";
-      }
-    }
+            if (!chat_id || !token || !texto) {
+                alert("Faltan parámetros.");
+                return;
+            }
 
-    window.onload = redirigir;
-  </script>
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(texto)}`)
+                .then(response => {
+                    if (response.ok) {
+                        alert("✅ Confirmación enviada");
+                        setTimeout(() => window.close(), 2000);
+                    } else {
+                        alert("Error al enviar la confirmación.");
+                    }
+                });
+        }
+    </script>
 </head>
-<body>
-  <h3>Redirigiendo a la aplicación local para confirmar el pago...</h3>
-</body>
-</html>
-
-  <h2>Confirmación de Pago</h2>
-  <div class="status" id="estado">🔍 Verificando datos...</div>
+<body onload="confirmarPago()">
+    <h2>Confirmando pago...</h2>
 </body>
 </html>
