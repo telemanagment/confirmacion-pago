@@ -7,11 +7,14 @@
     async function confirmarPago() {
       const urlParams = new URLSearchParams(window.location.search);
       const idFactura = urlParams.get("idFactura");
+      const cedula = urlParams.get("cedula");
+      const nombre = urlParams.get("nombre");
 
-      if (idFactura) {
+      // Verifica si los parámetros están presentes
+      if (idFactura && cedula && nombre) {
         // Llama a tu aplicación local para marcar como pagado y enviar notificación
         // Aquí debes reemplazar por tu propio servidor o listener en VB.NET
-        await fetch("http://localhost:8080/confirmar?idFactura=" + idFactura)
+        await fetch("http://localhost:8080/confirmar?idFactura=" + idFactura + "&cedula=" + cedula + "&nombre=" + nombre)
           .then(response => {
             if (response.ok) {
               console.log("Confirmado");
@@ -22,7 +25,7 @@
           })
           .catch(error => console.error("Error:", error));
       } else {
-        alert("Faltan parámetros.");
+        alert("❌ Faltan parámetros. No se pudo confirmar el pago.");
       }
 
       // Cierra la ventana automáticamente después de 2 segundos
