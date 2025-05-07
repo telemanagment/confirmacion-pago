@@ -1,33 +1,38 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Confirmación de Pago</title>
-    <script>
-        function confirmarPago() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const chat_id = urlParams.get("chat_id");
-            const token = urlParams.get("token");
-            const texto = urlParams.get("texto");
+  <meta charset="UTF-8">
+  <title>Confirmando Pago</title>
+  <script>
+    async function confirmarPago() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const idFactura = urlParams.get("idFactura");
 
-            if (!chat_id || !token || !texto) {
-                alert("Faltan parámetros.");
-                return;
+      if (idFactura) {
+        // Llama a tu aplicación local para marcar como pagado y enviar notificación
+        // Aquí debes reemplazar por tu propio servidor o listener en VB.NET
+        await fetch("http://localhost:8080/confirmar?idFactura=" + idFactura)
+          .then(response => {
+            if (response.ok) {
+              console.log("Confirmado");
+              alert("✅ Pago confirmado y factura procesada.");
+            } else {
+              console.error("Error al procesar la factura.");
             }
+          })
+          .catch(error => console.error("Error:", error));
+      } else {
+        alert("Faltan parámetros.");
+      }
 
-            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(texto)}`)
-                .then(response => {
-                    if (response.ok) {
-                        alert("✅ Confirmación enviada");
-                        setTimeout(() => window.close(), 2000);
-                    } else {
-                        alert("Error al enviar la confirmación.");
-                    }
-                });
-        }
-    </script>
+      // Cierra la ventana automáticamente después de 2 segundos
+      setTimeout(() => window.close(), 2000);
+    }
+
+    window.onload = confirmarPago;
+  </script>
 </head>
-<body onload="confirmarPago()">
-    <h2>Confirmando pago...</h2>
+<body>
+  <h3>Confirmando pago...</h3>
 </body>
 </html>
